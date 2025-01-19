@@ -14,9 +14,11 @@ jobs:
     name: Build
     strategy:
       matrix:
-        arch: [ amd64 ]
+        arch: [ amd64, arm64 ]
         version: [ 17-bookworm ]
-    runs-on: ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || matrix.arch == 'arm64' && 'nx1' }} # Builds on NX1 self-hosted
+    runs-on:
+      - 'ubuntu-latest'
+      - ${{ matrix.arch == 'arm64' && 'nx1' }} # Builds on NX1 self-hosted
     env:
       ARCH: ${{ matrix.arch }}
       OS: linux

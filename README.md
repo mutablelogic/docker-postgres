@@ -38,7 +38,7 @@ docker run \
   -e POSTGRES_PASSWORD="postgres" \
   -p 5432:5432 \
   -v postgres-primary:/var/lib/postgresql/data \
-  ghcr.io/mutablelogic/docker-postgres-darwin-amd64:17-bookworm
+  ghcr.io/mutablelogic/docker-postgres:17-bookworm
 ```
 
 You can add additional replication slots later as needed.
@@ -60,7 +60,7 @@ docker run \
     -e POSTGRES_PASSWORD="postgres" \
     -p 5433:5432 \
     -v postgres-replica1:/var/lib/postgresql/data \
-    ghcr.io/mutablelogic/docker-postgres-darwin-amd64:17-bookworm
+    ghcr.io/mutablelogic/docker-postgres:17-bookworm
 ```
 
 A second replica (and so forth) can be run in the same way, but with a different port and volume name.
