@@ -61,6 +61,7 @@ jobs:
         id: manifest
         with:
           index-annotations: ${{ steps.metadata.outputs.labels }}
-          tags: ${{ steps.metadata.outputs.tags }}
+          tags: ghcr.io/${{ github.repository }}:${{ matrix.version }}
           sources: |
             ghcr.io/${{ github.repository }}-linux-amd64:${{ matrix.version }}
+            ghcr.io/${{ github.repository }}-linux-arm64:${{ matrix.version }}
