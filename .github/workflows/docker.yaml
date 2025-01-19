@@ -55,7 +55,8 @@ jobs:
       - uses: int128/docker-manifest-create-action@v2
         id: manifest
         with:
-          tags: ghcr.io/${{ github.repository }}:${{ matrix.version }}
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ matrix.version }}
           sources: |
             ghcr.io/${{ github.repository }}-linux-amd64:${{ matrix.version }}
             ghcr.io/${{ github.repository }}-linux-arm64:${{ matrix.version }}
