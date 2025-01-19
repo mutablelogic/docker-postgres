@@ -61,5 +61,4 @@ jobs:
           index-annotations: ${{ steps.metadata.outputs.labels }}
           tags: ${{ steps.metadata.outputs.tags }}
           sources: |
-            ghcr.io/${{ github.repository }}-linux-amd64@${{ matrix.version }}
-  
+            ghcr.io/${{ github.repository }}-linux-amd64:${{ matrix.version }}

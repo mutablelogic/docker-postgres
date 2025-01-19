@@ -6,7 +6,8 @@ ARG ARCH
 FROM postgres:${VERSION}
 
 LABEL org.opencontainers.image.description="PostgreSQL image with primary/replica support" \
-      org.opencontainers.image.source="https://github.com/mutablelogic/docker-postgres"
+      org.opencontainers.image.source="https://github.com/mutablelogic/docker-postgres" \
+      org.opencontainers.image.version="${VERSION}"
 
 # Install packages postgis and pgvector
 ENV POSTGIS_MAJOR=3
