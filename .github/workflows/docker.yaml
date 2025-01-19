@@ -18,7 +18,6 @@ jobs:
         version: [ 17-bookworm ]
     runs-on:
       - 'ubuntu-latest'
-      - ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || matrix.arch == 'arm64' && 'nx1' }} # Builds on NX1 self-hosted
     env:
       ARCH: ${{ matrix.arch }}
       OS: linux
