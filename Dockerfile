@@ -1,13 +1,12 @@
 ARG VERSION=17-bookworm
-ARG OS
-ARG ARCH
 
 # Use the base image
 FROM postgres:${VERSION}
-
+ARG VERSION
+ARG SOURCE
 LABEL org.opencontainers.image.description="PostgreSQL image with primary/replica support" \
-      org.opencontainers.image.source="https://github.com/mutablelogic/docker-postgres" \
-      org.opencontainers.image.version="${VERSION}"
+      org.opencontainers.image.source="$SOURCE" \
+      org.opencontainers.image.version="$VERSION"
 
 # Install packages postgis and pgvector
 ENV POSTGIS_MAJOR=3

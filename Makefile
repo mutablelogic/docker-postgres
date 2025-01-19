@@ -19,6 +19,7 @@ docker: docker-dep
 		--build-arg ARCH=${ARCH} \
 		--build-arg OS=${OS} \
 		--build-arg VERSION=${VERSION} \
+		--build-arg SOURCE=${DOCKER_REPO} \
 		-f Dockerfile .
 
 # Push the docker image
