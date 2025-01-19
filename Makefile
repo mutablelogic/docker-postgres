@@ -21,6 +21,11 @@ docker: docker-dep
 		--build-arg VERSION=${VERSION} \
 		-f Dockerfile .
 
+# Push the docker image
+.PHONY: docker-push
+docker-push: docker
+	@echo push docker image: ${BUILD_TAG}
+	@${DOCKER} push ${BUILD_TAG}
 
 ###############################################################################
 # DEPENDENCIES
