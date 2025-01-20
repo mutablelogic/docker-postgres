@@ -17,13 +17,18 @@ jobs:
         arch: [ amd64, arm64 ]
         version: [ 17-bookworm ]
     runs-on:
-      - 'ubuntu-latest'
+      - ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || matrix.arch }}
     env:
       ARCH: ${{ matrix.arch }}
       OS: linux
       VERSION: ${{ matrix.version }}
       DOCKER_REPO: ghcr.io/${{ github.repository }}
     steps:
+      - name: Install build tools
+        run: |
+          sudo apt -y update
+          sudo apt -y install build-essential git
+          git config --global advice.detachedHead false    
       - name: Checkout
         uses: actions/checkout@v4
         with:
