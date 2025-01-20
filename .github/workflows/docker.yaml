@@ -24,6 +24,11 @@ jobs:
       VERSION: ${{ matrix.version }}
       DOCKER_REPO: ghcr.io/${{ github.repository }}
     steps:
+      - name: Install build tools
+        run: |
+          sudo apt -y update
+          sudo apt -y install build-essential git
+          git config --global advice.detachedHead false    
       - name: Checkout
         uses: actions/checkout@v4
         with:
