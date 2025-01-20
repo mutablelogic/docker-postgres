@@ -7,7 +7,6 @@ OS ?= $(shell uname | tr A-Z a-z)
 VERSION ?= 17-bookworm
 
 # Docker repository
-DOCKER_SOURCE ?= https://github.com/mutablelogic/docker-postgres
 DOCKER_REPO ?= ghcr.io/mutablelogic/docker-postgres
 BUILD_TAG = ${DOCKER_REPO}-${OS}-${ARCH}:${VERSION}
 
@@ -20,7 +19,6 @@ docker: docker-dep
 		--build-arg ARCH=${ARCH} \
 		--build-arg OS=${OS} \
 		--build-arg VERSION=${VERSION} \
-		--build-arg SOURCE=${DOCKER_SOURCE} \
 		-f Dockerfile .
 
 # Push the docker image
