@@ -52,14 +52,19 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: int128/docker-manifest-create-action@v2
-        id: manifest
-        with:
-          tags: |
-            ghcr.io/${{ github.repository }}:${{ matrix.version }}
-          sources: |
-            ghcr.io/${{ github.repository }}-linux-amd64:${{ matrix.version }}
+      - name: Create
+        run: |
+          docker manifest create ghcr.io/${{ github.repository }}:${{ matrix.version }} \
+            --amend ghcr.io/${{ github.repository }}-linux-amd64:${{ matrix.version }} \
+            --amend ghcr.io/${{ github.repository }}-linux-arm64:${{ matrix.version }}
+      - name: Annotate
+        run: |
+          docker manifest annotate --arch arm64 --os linux \
+            ghcr.io/${{ github.repository }}:${{ matrix.version }} \
             ghcr.io/${{ github.repository }}-linux-arm64:${{ matrix.version }}
-          index-annotations: |
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.version=${{ matrix.version }}
+          docker manifest annotate --arch amd64 --os linux \
+            ghcr.io/${{ github.repository }}:${{ matrix.version }} \
+            ghcr.io/${{ github.repository }}-linux-amd64:${{ matrix.version }}
+      - name: Push
+        run: |
+          docker manifest push ghcr.io/${{ github.repository }}:${{ matrix.version }}
