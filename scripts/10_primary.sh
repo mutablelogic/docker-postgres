@@ -34,6 +34,3 @@ CONF="${PGDATA}/postgresql.conf"
 sed -i -e"s/^#wal_level.*$/wal_level=replica/" ${CONF}
 sed -i -e"s/^#max_wal_senders.*$/max_wal_senders=10/" ${CONF}
 sed -i -e"s/^#max_replication_slots.*$/max_replication_slots=10/" ${CONF}
-
-# Add the replication user to pg_hba.conf
-echo "host ${POSTGRES_REPLICATION_USER} all 0.0.0.0/0 scram-sha-256" >> "${PGDATA}/pg_hba.conf"
