@@ -17,7 +17,7 @@ jobs:
         arch: [ amd64, arm64 ]
         version: [ 17-bookworm ]
     runs-on:
-      - 'ubuntu-latest'
+      - ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || matrix.arch }}
     env:
       ARCH: ${{ matrix.arch }}
       OS: linux
