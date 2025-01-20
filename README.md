@@ -65,3 +65,12 @@ docker run \
 
 A second replica (and so forth) can be run in the same way, but with a different port and volume name.
 You can run up to ten replicas by default.
+
+## Extensions
+
+The docker images also contain [PostGIS](https://postgis.net/) and [pgvector](https://github.com/pgvector/pgvector) extensions.
+
+## Bugs, feature requests and contributions
+
+You can raise issues and feature requests using the [GitHub issue tracker](https://github.com/mutablelogic/docker-postgres/issues)
+or send pull requests. The image is built from the [Official Docker image](https://hub.docker.com/_/postgres).
