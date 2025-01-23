@@ -1,12 +1,13 @@
 # PostgreSQL Dockerfile with primary and replica support
 
-PostgresSQL image with Primary &amp; Replica support. In order to build the image, run:
+PostgreSQL image with Primary &amp; Replica support, plus SSL support.
+In order to build the image, run:
 
 ```bash
 DOCKER_REPO=ghcr.io/mutablelogic/docker-postgres make docker
 ```
 
-Replacing the `DOCKER_REPO` with the repository you want to use.
+Replacing the `DOCKER_REPO` with the repository you want to push the image to.
 
 ## Environment variables
 
@@ -22,6 +23,15 @@ docker command line:
 * `POSTGRES_REPLICATION_SLOT`: **Default is `replica1`** The replication slot for each replica.
   On the primary, this is a comma-separated list of replication slots. On a replica, this is the name
   of the replication slot used for syncronization.
+* `POSTGRES_DATABASES`: **Optional**: A comma-separated list of databases (and associated owner role,
+  which has the same name as the database), in addition to the main database.
+* `POSTGRES_PASSWORD_<role>`: **Optional**: For any database which is created, you can enable
+  login and set the password for the database owner role by setting this environment variable. Without
+  this environment variable, the role will not be able to login.
+* `POSTGRES_SSL_CERT`: **Optional**: The SSL certificate file location for the server, within the container.
+* `POSTGRES_SSL_KEY`: **Optional**: The SSL private key file location for the server, within the container.
+* `POSTGRES_SSL_CA`: **Optional**: The SSL authority certificate file location for the server, within the 
+  container.
 
 ## Running a Primary server
 
@@ -64,13 +74,17 @@ docker run \
 ```
 
 A second replica (and so forth) can be run in the same way, but with a different port and volume name.
-You can run up to ten replicas by default.
+You can run up to ten replicas by default. You should ensure the primary instance is running before starting
+the replica.
 
 ## Extensions
 
-The docker images also contain [PostGIS](https://postgis.net/) and [pgvector](https://github.com/pgvector/pgvector) extensions.
+The docker images also contain [PostGIS](https://postgis.net/) and
+[pgvector](https://github.com/pgvector/pgvector) extensions.
 
 ## Bugs, feature requests and contributions
 
-You can raise issues and feature requests using the [GitHub issue tracker](https://github.com/mutablelogic/docker-postgres/issues)
-or send pull requests. The image is built from the [Official Docker image](https://hub.docker.com/_/postgres).
+You can raise issues and feature requests using 
+the [GitHub issue tracker](https://github.com/mutablelogic/docker-postgres/issues)
+or send pull requests. The image is built from
+the [Official Docker image](https://hub.docker.com/_/postgres).
