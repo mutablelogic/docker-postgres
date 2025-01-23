@@ -1,4 +1,6 @@
 #!/bin/bash
+# Script runs on a primary instance to set up replication slots
+# The primary instance should be started before the replicas
 set -e
 
 # Script should only run on the primary node

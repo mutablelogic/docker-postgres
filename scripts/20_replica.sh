@@ -1,4 +1,6 @@
 #!/bin/bash
+# Script runs on a replica node to backup from the primary and set up replication
+# The primary instance should be running before starting the replica
 set -e
 
 # Script should only run on the primary node
