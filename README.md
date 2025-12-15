@@ -11,13 +11,14 @@ Replacing the `DOCKER_REPO` with the repository you want to push the image to.
 
 ## Environment variables
 
-The image can be run as a primary or replica, depending on the environment variables passed on the
+The image can be run as a standalone instance, primary, or replica, depending on the environment variables passed on the
 docker command line:
 
 * `POSTGRES_REPLICATION_PRIMARY`: **Required for replica** The host and port that the replica will use
   to connect to the primary, in the form `host=<hostname> port=5432`. When not set,
-  the instance role is a primary.
-* `POSTGRES_REPLICATION_PASSWORD`: **Required**: The password for the `POSTGRES_REPLICATION_USER`.
+  the instance role is a primary or standalone.
+* `POSTGRES_REPLICATION_PASSWORD`: **Required for replication**: The password for the `POSTGRES_REPLICATION_USER`.
+  If not set, replication is disabled and the instance runs as a standalone server.
 * `POSTGRES_REPLICATION_USER`: **Default is `replicator`**: The user that the replica will use to connect to the primary.
 * `POSTGRES_REPLICATION_SLOT`: **Default is `replica1`**: The replication slot for each replica.
   On the primary, this is a comma-separated list of replication slots. On a replica, this is the name
@@ -33,6 +34,22 @@ docker command line:
   Requires `POSTGRES_SSL_CERT` to also be set.
 * `POSTGRES_SSL_CA`: **Optional**: The SSL CA certificate file location for client certificate verification.
   Only used when `POSTGRES_SSL_CERT` and `POSTGRES_SSL_KEY` are set.
+
+## Running a standalone server
+
+Example of running a standalone PostgreSQL instance without replication:
+
+```bash
+docker volume create postgres-data
+docker run \
+  --rm --name postgres \
+  -e POSTGRES_PASSWORD="postgres" \
+  -p 5432:5432 \
+  -v postgres-data:/var/lib/postgresql/data \
+  ghcr.io/mutablelogic/docker-postgres:17-bookworm
+```
+
+This gives you PostgreSQL with `pg_stat_statements` pre-loaded, plus PostGIS and pgvector available.
 
 ## Running a Primary server
 
