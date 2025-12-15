@@ -35,9 +35,22 @@ docker command line:
 * `POSTGRES_SSL_CA`: **Optional**: The SSL CA certificate file location for client certificate verification.
   Only used when `POSTGRES_SSL_CERT` and `POSTGRES_SSL_KEY` are set.
 
+## Volume mount path
+
+**Important:** PostgreSQL 18+ uses a different data directory structure to support `pg_upgrade`.
+
+| Version | Volume mount path |
+|---------|-------------------|
+| 17 and earlier | `-v myvolume:/var/lib/postgresql/data` |
+| 18 and later | `-v myvolume:/var/lib/postgresql` |
+
+See [docker-library/postgres#1259](https://github.com/docker-library/postgres/pull/1259) for details.
+
 ## Running a standalone server
 
 Example of running a standalone PostgreSQL instance without replication:
+
+**PostgreSQL 17:**
 
 ```bash
 docker volume create postgres-data
@@ -49,6 +62,18 @@ docker run \
   ghcr.io/mutablelogic/docker-postgres:17-bookworm
 ```
 
+**PostgreSQL 18+:**
+
+```bash
+docker volume create postgres-data
+docker run \
+  --rm --name postgres \
+  -e POSTGRES_PASSWORD="postgres" \
+  -p 5432:5432 \
+  -v postgres-data:/var/lib/postgresql \
+  ghcr.io/mutablelogic/docker-postgres:18-trixie
+```
+
 This gives you PostgreSQL with `pg_stat_statements` pre-loaded, plus PostGIS and pgvector available.
 
 ## Running a Primary server
@@ -56,6 +81,8 @@ This gives you PostgreSQL with `pg_stat_statements` pre-loaded, plus PostGIS and
 Example of running a primary instance, with two replication slots.
 You should change the password for the `POSTGRES_PASSWORD` and `POSTGRES_REPLICATION_PASSWORD`
 environment variables in this example:
+
+**PostgreSQL 17:**
 
 ```bash
 docker volume create postgres-primary
@@ -69,6 +96,20 @@ docker run \
   ghcr.io/mutablelogic/docker-postgres:17-bookworm
 ```
 
+**PostgreSQL 18+:**
+
+```bash
+docker volume create postgres-primary
+docker run \
+  --rm --name postgres-primary \
+  -e POSTGRES_REPLICATION_SLOT="replica1,replica2" \
+  -e POSTGRES_REPLICATION_PASSWORD="postgres" \
+  -e POSTGRES_PASSWORD="postgres" \
+  -p 5432:5432 \
+  -v postgres-primary:/var/lib/postgresql \
+  ghcr.io/mutablelogic/docker-postgres:18-trixie
+```
+
 You can add additional replication slots later as needed.
 
 ## Running a Replica server
@@ -77,6 +118,8 @@ When you run a replica instance, the first time it runs it will backup from the 
 replication. You should change the password for the `POSTGRES_PASSWORD` and `POSTGRES_REPLICATION_PASSWORD`
 environment variables, and set the `POSTGRES_REPLICATION_PRIMARY` environment variable to the primary instance
 in this example:
+
+**PostgreSQL 17:**
 
 ```bash
 docker volume create postgres-replica1
@@ -89,6 +132,21 @@ docker run \
     -p 5433:5432 \
     -v postgres-replica1:/var/lib/postgresql/data \
     ghcr.io/mutablelogic/docker-postgres:17-bookworm
+```
+
+**PostgreSQL 18+:**
+
+```bash
+docker volume create postgres-replica1
+docker run \
+    --rm --name postgres-replica1 \
+    -e POSTGRES_REPLICATION_PRIMARY="host=milou.lan port=5432" \
+    -e POSTGRES_REPLICATION_SLOT="replica1" \
+    -e POSTGRES_REPLICATION_PASSWORD="postgres" \
+    -e POSTGRES_PASSWORD="postgres" \
+    -p 5433:5432 \
+    -v postgres-replica1:/var/lib/postgresql \
+    ghcr.io/mutablelogic/docker-postgres:18-trixie
 ```
 
 A second replica (and so forth) can be run in the same way, but with a different port and volume name.
