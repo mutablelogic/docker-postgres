@@ -18,20 +18,21 @@ docker command line:
   to connect to the primary, in the form `host=<hostname> port=5432`. When not set,
   the instance role is a primary.
 * `POSTGRES_REPLICATION_PASSWORD`: **Required**: The password for the `POSTGRES_REPLICATION_USER`.
-* `POSTGRES_REPLICATION_USER`: **Default is `replicator`**: The user that the primary will use to connect
-  to the replica.  
-* `POSTGRES_REPLICATION_SLOT`: **Default is `replica1`** The replication slot for each replica.
+* `POSTGRES_REPLICATION_USER`: **Default is `replicator`**: The user that the replica will use to connect to the primary.
+* `POSTGRES_REPLICATION_SLOT`: **Default is `replica1`**: The replication slot for each replica.
   On the primary, this is a comma-separated list of replication slots. On a replica, this is the name
-  of the replication slot used for syncronization.
+  of the replication slot used for synchronization.
 * `POSTGRES_DATABASES`: **Optional**: A comma-separated list of databases (and associated owner role,
   which has the same name as the database), in addition to the main database.
 * `POSTGRES_PASSWORD_<role>`: **Optional**: For any database which is created, you can enable
   login and set the password for the database owner role by setting this environment variable. Without
   this environment variable, the role will not be able to login.
 * `POSTGRES_SSL_CERT`: **Optional**: The SSL certificate file location for the server, within the container.
+  Requires `POSTGRES_SSL_KEY` to also be set.
 * `POSTGRES_SSL_KEY`: **Optional**: The SSL private key file location for the server, within the container.
-* `POSTGRES_SSL_CA`: **Optional**: The SSL authority certificate file location for the server, within the 
-  container.
+  Requires `POSTGRES_SSL_CERT` to also be set.
+* `POSTGRES_SSL_CA`: **Optional**: The SSL CA certificate file location for client certificate verification.
+  Only used when `POSTGRES_SSL_CERT` and `POSTGRES_SSL_KEY` are set.
 
 ## Running a Primary server
 
@@ -79,12 +80,17 @@ the replica.
 
 ## Extensions
 
-The docker images also contain [PostGIS](https://postgis.net/) and
-[pgvector](https://github.com/pgvector/pgvector) extensions.
+The docker images include the following extensions:
+
+* [pg_stat_statements](https://www.postgresql.org/docs/current/pgstatstatements.html) - Pre-loaded for query
+  performance monitoring. Create the extension with `CREATE EXTENSION pg_stat_statements;` to start collecting
+  statistics.
+* [PostGIS](https://postgis.net/) - Spatial database extender.
+* [pgvector](https://github.com/pgvector/pgvector) - Vector similarity search.
 
 ## Bugs, feature requests and contributions
 
-You can raise issues and feature requests using 
+You can raise issues and feature requests using
 the [GitHub issue tracker](https://github.com/mutablelogic/docker-postgres/issues)
 or send pull requests. The image is built from
 the [Official Docker image](https://hub.docker.com/_/postgres).

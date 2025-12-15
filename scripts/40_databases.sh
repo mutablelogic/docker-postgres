@@ -8,31 +8,48 @@ if [ ! -z "${POSTGRES_REPLICATION_PRIMARY}" ]; then
     exit 0
 fi
 
+# Skip if no databases configured
+if [ -z "${POSTGRES_DATABASES}" ]; then
+    echo "No additional databases configured, skipping."
+    exit 0
+fi
+
 # Create the databases
 IFS=',' read -r -a array <<< "${POSTGRES_DATABASES}"
 for NAME in "${array[@]}"; do
-    # if there is an environment variable called POSTGRES_PASSWORD_<NAME>, then use that password
-    if [ ! -z "${!POSTGRES_PASSWORD_${NAME}}" ]; then
-        ALTER_ROLE="ALTER ROLE ${NAME} WITH PASSWORD ${!POSTGRES_PASSWORD_${NAME}}"
-    else
-        ALTER_ROLE="ALTER ROLE ${NAME} WITH NOLOGIN"
-    fi
-    # Execute SQL to create the database and role
-    psql -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" <<-EOSQL
-        DO $$ BEGIN
-            -- Create database
-            CREATE EXTENSION IF NOT EXISTS dblink;
-            IF NOT EXISTS (
-                SELECT 1 FROM pg_database WHERE datname = '${NAME}'
-            ) THEN
-                PERFORM dblink_exec('dbname=${POSTGRES_DB}', 'CREATE DATABASE ${NAME}');
-            END IF;
+    # Build the password variable name and get its value
+    PASSWORD_VAR="POSTGRES_PASSWORD_${NAME}"
+    PASSWORD="${!PASSWORD_VAR}"
 
-            -- Create role
-            CREATE ROLE ${NAME};
-            ${ALTER_ROLE};
-            ALTER DATABASE ${NAME} OWNER TO ${NAME};
-            EXCEPTION WHEN duplicate_object THEN RAISE NOTICE '%, skipping', SQLERRM USING ERRCODE = SQLSTATE;
-        END $$;
+    echo "Creating database and role: ${NAME}"
+
+    # Create role if it doesn't exist
+    psql -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" <<-EOSQL
+        DO \$\$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${NAME}') THEN
+                CREATE ROLE ${NAME};
+            END IF;
+        END
+        \$\$;
 EOSQL
+
+    # Set password or NOLOGIN
+    if [ ! -z "${PASSWORD}" ]; then
+        psql -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" <<-EOSQL
+            ALTER ROLE ${NAME} WITH LOGIN PASSWORD '${PASSWORD}';
+EOSQL
+    else
+        psql -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" <<-EOSQL
+            ALTER ROLE ${NAME} WITH NOLOGIN;
+EOSQL
+    fi
+
+    # Create database if it doesn't exist
+    psql -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" <<-EOSQL
+        SELECT 'CREATE DATABASE ${NAME} OWNER ${NAME}'
+        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${NAME}')\gexec
+EOSQL
+
+    echo "Created database and role: ${NAME}"
 done
