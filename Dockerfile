@@ -22,6 +22,13 @@ COPY --chmod=755 ./scripts/20_replica.sh /docker-entrypoint-initdb.d
 COPY --chmod=755 ./scripts/30_ssl.sh /docker-entrypoint-initdb.d
 COPY --chmod=755 ./scripts/40_databases.sh /docker-entrypoint-initdb.d
 
+# Entrypoint wrapper, which makes the postgres home directory writable before
+# running the official entrypoint. Setting ENTRYPOINT resets the base image's
+# CMD, so set that again too.
+COPY --chmod=755 ./scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["postgres"]
+
 # Set the environment
 ENV POSTGRES_REPLICATION_USER=replicator \
   POSTGRES_REPLICATION_SLOT=replica1

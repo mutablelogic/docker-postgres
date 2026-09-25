@@ -25,11 +25,27 @@ if [ -z "${POSTGRES_REPLICATION_SLOT}" ]; then
     exit 1
 fi
 
+# If anything below fails, remove the partly-initialised database before
+# exiting. Otherwise, on the next start the entrypoint finds a database in
+# $PGDATA, skips initialisation, and runs it as a standalone server instead of
+# a replica. With $PGDATA empty, the next start retries the whole setup.
+on_error() {
+    echo "Replica initialisation failed; removing ${PGDATA} contents so the next start retries." >&2
+    pg_ctl -D "${PGDATA}" stop -m immediate >/dev/null 2>&1 || true
+    rm -rf "${PGDATA:?}"/* "${PGDATA:?}"/.[!.]* 2>/dev/null || true
+}
+trap 'on_error' ERR
+
 # Make the data directory
 install -d "${PGDATA}" -o postgres -g postgres -m 700
 
-# Set password for replication user (idempotent)
+# Set password for replication user (idempotent). The file is in the postgres
+# home directory, which must be writable by postgres (see entrypoint.sh).
 PGPASS_FILE="/var/lib/postgresql/.pgpass"
+if ! touch "${PGPASS_FILE}" 2>/dev/null; then
+    echo "Cannot write ${PGPASS_FILE}: /var/lib/postgresql must be writable by the postgres user." >&2
+    false
+fi
 PGPASS_ENTRY="*:*:*:${POSTGRES_REPLICATION_USER}:${POSTGRES_REPLICATION_PASSWORD}"
 if [ ! -f "${PGPASS_FILE}" ] || ! grep -qF "${PGPASS_ENTRY}" "${PGPASS_FILE}"; then
     echo "${PGPASS_ENTRY}" >> "${PGPASS_FILE}"
