@@ -55,9 +55,11 @@ fi
 # Stop the server if running
 pg_ctl -D "${PGDATA}" stop -m fast 2>/dev/null || true
 
-# Perform the backup
+# Perform the backup. The official entrypoint exports PGPASSWORD (set to
+# POSTGRES_PASSWORD) while it runs init scripts, and libpq prefers it to
+# .pgpass, so unset it to make pg_basebackup use the replication password.
 rm -fr ${PGDATA}/*
-pg_basebackup -v --pgdata="${PGDATA}" \
+env -u PGPASSWORD pg_basebackup -v --pgdata="${PGDATA}" \
   --write-recovery-conf \
   --slot="${POSTGRES_REPLICATION_SLOT}" -X stream \
   --dbname="${POSTGRES_REPLICATION_PRIMARY}" --username="${POSTGRES_REPLICATION_USER}" --no-password
@@ -70,5 +72,5 @@ sed -i -e"s/^#*max_replication_slots.*$/max_replication_slots = 10/" ${CONF}
 sed -i -e"s/^#*hot_standby.*$/hot_standby = on/" ${CONF}
 sed -i -e"s/^#*hot_standby_feedback.*$/hot_standby_feedback = on/" ${CONF}
 
-# Start the server
-pg_ctl -D "${PGDATA}" start
+# Start the server, again without PGPASSWORD so the WAL receiver uses .pgpass
+env -u PGPASSWORD pg_ctl -D "${PGDATA}" start
