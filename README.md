@@ -89,7 +89,7 @@ docker volume create postgres-primary
 docker run \
   --rm --name postgres-primary \
   -e POSTGRES_REPLICATION_SLOT="replica1,replica2" \
-  -e POSTGRES_REPLICATION_PASSWORD="postgres" \
+  -e POSTGRES_REPLICATION_PASSWORD="replicator" \
   -e POSTGRES_PASSWORD="postgres" \
   -p 5432:5432 \
   -v postgres-primary:/var/lib/postgresql/data \
@@ -103,7 +103,7 @@ docker volume create postgres-primary
 docker run \
   --rm --name postgres-primary \
   -e POSTGRES_REPLICATION_SLOT="replica1,replica2" \
-  -e POSTGRES_REPLICATION_PASSWORD="postgres" \
+  -e POSTGRES_REPLICATION_PASSWORD="replicator" \
   -e POSTGRES_PASSWORD="postgres" \
   -p 5432:5432 \
   -v postgres-primary:/var/lib/postgresql \
@@ -117,7 +117,7 @@ You can add additional replication slots later as needed.
 When you run a replica instance, the first time it runs it will backup from the primary instance and then start
 replication. You should change the password for the `POSTGRES_PASSWORD` and `POSTGRES_REPLICATION_PASSWORD`
 environment variables, and set the `POSTGRES_REPLICATION_PRIMARY` environment variable to the primary instance
-in this example:
+in this example. `POSTGRES_REPLICATION_PASSWORD` must match the primary's, but `POSTGRES_PASSWORD` can differ:
 
 **PostgreSQL 17:**
 
@@ -127,7 +127,7 @@ docker run \
     --rm --name postgres-replica1 \
     -e POSTGRES_REPLICATION_PRIMARY="host=milou.lan port=5432" \
     -e POSTGRES_REPLICATION_SLOT="replica1" \
-    -e POSTGRES_REPLICATION_PASSWORD="postgres" \
+    -e POSTGRES_REPLICATION_PASSWORD="replicator" \
     -e POSTGRES_PASSWORD="postgres" \
     -p 5433:5432 \
     -v postgres-replica1:/var/lib/postgresql/data \
@@ -142,7 +142,7 @@ docker run \
     --rm --name postgres-replica1 \
     -e POSTGRES_REPLICATION_PRIMARY="host=milou.lan port=5432" \
     -e POSTGRES_REPLICATION_SLOT="replica1" \
-    -e POSTGRES_REPLICATION_PASSWORD="postgres" \
+    -e POSTGRES_REPLICATION_PASSWORD="replicator" \
     -e POSTGRES_PASSWORD="postgres" \
     -p 5433:5432 \
     -v postgres-replica1:/var/lib/postgresql \

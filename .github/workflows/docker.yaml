@@ -2,6 +2,16 @@ name: Build Containers
 on:
   release:
     types: [created, edited]
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - Makefile
+      - scripts/**
+      - .github/workflows/docker.yaml
+  schedule:
+    # Weekly rebuild to pick up PostgreSQL and Debian security updates
+    - cron: "0 4 * * 1"
   workflow_dispatch:
     inputs:
       tag:
@@ -13,11 +23,11 @@ jobs:
   build:
     name: Build
     strategy:
+      fail-fast: false
       matrix:
         arch: [amd64, arm64]
         version: [17-bookworm, 18-trixie, 19-trixie]
-    runs-on:
-      - ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || matrix.arch }}
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     env:
       ARCH: ${{ matrix.arch }}
       OS: linux
