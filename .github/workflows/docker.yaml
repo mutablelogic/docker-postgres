@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         arch: [amd64, arm64]
-        version: [17-bookworm, 18-trixie]
+        version: [17-bookworm, 18-trixie, 19-trixie]
     runs-on:
       - ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || matrix.arch }}
     env:
@@ -48,7 +48,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        version: [17-bookworm, 18-trixie]
+        version: [17-bookworm, 18-trixie, 19-trixie]
     runs-on: ubuntu-latest
     steps:
       - name: Login
